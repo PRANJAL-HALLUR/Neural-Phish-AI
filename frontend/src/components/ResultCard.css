@@ -1,0 +1,110 @@
+.result-card {
+  padding: 2rem;
+  margin-top: 1.5rem;
+  border-left: 4px solid var(--accent);
+  transition: all 0.3s ease;
+}
+
+.theme-safe {
+  border-left-color: var(--success);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
+}
+
+.theme-safe .result-icon { color: var(--success); }
+.theme-safe .progress-bar-fill { background: var(--success); box-shadow: 0 0 10px var(--success); }
+
+.theme-warning {
+  border-left-color: var(--warning);
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.1);
+}
+
+.theme-warning .result-icon { color: var(--warning); }
+.theme-warning .progress-bar-fill { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
+
+.theme-danger {
+  border-left-color: var(--danger);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+}
+
+.theme-danger .result-icon { color: var(--danger); }
+.theme-danger .progress-bar-fill { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.result-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.confidence-section {
+  margin-bottom: 2rem;
+}
+
+.confidence-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.confidence-value {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.progress-bar-bg {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 600px) {
+  .details-grid {
+    grid-template-columns: 1fr 2fr;
+  }
+}
+
+.detail-item {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.detail-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.25rem;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.reason-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent);
+}
