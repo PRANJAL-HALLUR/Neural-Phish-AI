@@ -6,17 +6,23 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from urllib.parse import urlparse
 
-# Download NLTK resources implicitly
-nltk.download('stopwords', quiet=True)
-nltk.download('punkt', quiet=True)
-nltk.download('punkt_tab', quiet=True)
+# Download NLTK resources safely
+try:
+    nltk.download('stopwords', quiet=True)
+    nltk.download('punkt', quiet=True)
+    nltk.download('punkt_tab', quiet=True)
+except Exception:
+    pass
 
 def clean_text(text):
     if not isinstance(text, str):
         return ""
     text = text.lower()
     text = text.translate(str.maketrans('', '', string.punctuation))
-    tokens = word_tokenize(text)
+    try:
+        tokens = word_tokenize(text)
+    except Exception:
+        tokens = text.split()
     try:
         stop_words = set(stopwords.words('english'))
     except Exception:

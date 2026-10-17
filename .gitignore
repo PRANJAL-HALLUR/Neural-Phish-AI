@@ -1,19 +1,44 @@
+# Python Virtual Environments
 venv/
 .venv/
-node_modules/
-.env
+env/
+ENV/
+
+# Python Caches & Bytecode
 __pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+outputs/
+out.txt
+
+# Node Dependencies & Build Output
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Environment Variables & Secrets
+.env
+.env.local
+*.env
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Operating System Files
 .DS_Store
+Thumbs.db
+
+# Datasets (Training data not required at inference runtime; saves ~60MB on deploy)
+datasets/*.csv
+
+# Machine Learning Models (Preserve production models; ignore intermediate weights)
 *.pkl
 models/*_v[0-9]*.pkl
 !models/sms_model.pkl
 !models/url_model.pkl
 !models/vectorizer.pkl
+
+# Third-party tools
 ngrok.exe
-out.txt
-outputs/
-.pytest_cache/
-frontend/dist/
-frontend/node_modules/
-frontend/.env
-*.pyc
+ngrok

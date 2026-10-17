@@ -1,144 +1,201 @@
 # NeuralPhish AI 🛡️
 
-## Project Overview
-NeuralPhish AI is an advanced machine learning-powered system designed to detect phishing attempts across URLs and SMS messages. With a modern, futuristic UI and a high-performance backend, it provides real-time analysis, confidence scores, and detailed explanations for its predictions.
+NeuralPhish AI is an advanced machine learning-powered system designed to detect phishing attempts across URLs and SMS messages. Featuring a modern, cyber-defense styled React frontend and a robust FastAPI backend, it provides real-time threat analysis, confidence scores, risk level breakdowns, and explainable AI insights.
 
-## Problem Statement
-Phishing attacks are becoming increasingly sophisticated, tricking users into revealing sensitive information through fraudulent links and text messages. Traditional rule-based filters struggle to keep up with these evolving threats. NeuralPhish AI addresses this by leveraging machine learning models trained on large datasets to accurately classify malicious content based on structural flags, lexical features, and contextual patterns.
+---
 
-## Features
-- **URL Phishing Detection**: Analyzes URL structure, lexical features, and keywords to identify malicious links.
-- **SMS Phishing Detection**: Uses Natural Language Processing (NLP) to detect fraudulent patterns in text messages.
-- **Confidence Score & Risk Level**: Provides a percentage-based confidence score and categorizes risk as Low, Medium, or High.
-- **Explanation Output**: Offers detailed reasoning for the classification, including structural flags and detected keywords.
-- **Modern User Interface**: A sleek, dark-themed React frontend with real-time feedback and history tracking.
+## 🚀 Key Improvements & Architecture
 
-## Tech Stack
-- **Frontend**: React, Vite, Framer Motion, Lucide React
-- **Backend**: FastAPI, Uvicorn, Python
-- **Machine Learning**: Scikit-Learn, Pandas, NLTK, Joblib
-- **Deployment/Exposure**: ngrok (for exposing the local server to the web)
+- **Single-Service Architecture**: In production, the FastAPI server serves both the built React Single-Page Application (SPA) at `GET /` and the prediction APIs (`POST /predict/message`, `POST /predict/url`) under a unified host and port.
+- **No More Root 404s**: The root URL `GET /` directly delivers the React UI. Direct browser refreshes on SPA routes are handled with seamless fallback to `index.html`.
+- **API Segregation**: Unmatched API endpoints (`/predict/*`, `/api/*`) return clean JSON 404 responses instead of returning HTML.
+- **One-Command Local Startup**: Launch the entire application on Windows with a single click using `run_project.bat`.
+- **Zero Hardcoded URLs**: Frontend uses relative API paths (`/predict/message`, `/predict/url`) in production and transparent Vite dev-server proxying in development mode.
+- **Cloud-Ready for Render**: Includes `render.yaml` and `build.sh` for instant, one-click single-service deployment without ngrok.
+- **Robust Model Loading**: Serialized joblib models are resolved relative to source files and include scikit-learn version-compatibility safeguards.
 
-## Dataset Information
-The models are trained on robust datasets to ensure high accuracy:
-- **URL Dataset**: A comprehensive collection of benign and malicious URLs, evaluating features like URL length, domain characteristics, special characters, and keyword presence.
-- **SMS Dataset**: A dataset of spam and ham (legitimate) messages, preprocessed using NLTK for tokenization and vectorized using TF-IDF.
+---
 
-## Model Information
-- **SMS Model**: Logistic Regression trained on TF-IDF features.
-- **URL Model**: Random Forest Classifier trained on lexical and structural URL features.
-Both models are serialized using `joblib` and are optimized for quick inference in a production environment.
+## 🛠️ Tech Stack
 
-## Installation Steps
+- **Frontend**: React 19, Vite, Framer Motion, Lucide React, Modern Cyber-Themed CSS
+- **Backend**: FastAPI, Uvicorn, Python 3.10+
+- **Machine Learning**: Scikit-Learn (Logistic Regression & Random Forest), Pandas, NLTK, Joblib
+- **Deployment**: Render (Single Web Service), Docker/Linux compatible
+
+---
+
+## 🧠 Machine Learning Models
+
+1. **SMS Phishing Detection**:
+   - **Model**: Logistic Regression
+   - **Features**: TF-IDF N-gram vectorizer with NLTK tokenization and text preprocessing.
+   - **Heuristics**: Keyword pattern boosting for high-urgency terms (`urgent`, `verify`, `account`, `win`, `prize`).
+   - **Artifacts**: `models/sms_model.pkl`, `models/vectorizer.pkl`
+
+2. **URL Phishing Detection**:
+   - **Model**: Random Forest Classifier (200 estimators)
+   - **Features**: 10 structural & lexical URL features (`url_length`, `num_dots`, `has_https`, `special_chars`, `domain_length`, `subdomain_count`, `has_ip`, `hyphen_count`, `digit_count`, `has_suspicious_word`).
+   - **Heuristics**: Whitelisted domain recognition (`google.com`, `amazon.in`, `github.com`, etc.) and protocol bias checks.
+   - **Artifacts**: `models/url_model.pkl`
+
+---
+
+## ⚡ Quick Start (Local Development)
 
 ### Prerequisites
-- Python 3.9+
-- Node.js (v18+)
-- Git
+- **Python 3.10+**
+- **Node.js v18+** & **npm**
 
-### Clone the Repository
+### Option A: One-Command Startup (Windows)
+Double-click `run_project.bat` or run in terminal:
+```cmd
+run_project.bat
+```
+This launcher checks dependencies, starts the FastAPI backend on `http://127.0.0.1:8000`, starts the Vite frontend on `http://localhost:5173`, and opens the interfaces.
+
+### Option B: Manual Local Startup
+
+**1. Install Python Dependencies:**
 ```bash
-git clone <your-repository-url>
-cd ai_model
+pip install -r requirements.txt
 ```
 
-### 1. Backend Setup
-Navigate to the backend directory and install the requirements:
-```bash
-# Create a virtual environment (optional but recommended)
-python -m venv venv
-# Activate the virtual environment
-# On Windows: venv\Scripts\activate
-# On Mac/Linux: source venv/bin/activate
-
-# Install dependencies
-pip install -r backend/requirements.txt
-```
-
-### 2. Frontend Setup
-Navigate to the frontend directory and install the node modules:
+**2. Install Frontend Dependencies:**
 ```bash
 cd frontend
 npm install
+cd ..
 ```
 
-### 3. Environment Configuration
-Create a `.env` file in the `frontend` directory (you can copy from `.env.example`):
+**3. Run FastAPI Backend:**
 ```bash
-cp .env.example .env
+uvicorn backend.api.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-Ensure `VITE_API_BASE_URL` points to your backend (or ngrok URL).
+- API Docs: `http://localhost:8000/docs`
 
-## How to Run
-
-### Run Backend
-From the root directory (`ai_model`), start the FastAPI server:
-```bash
-uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload
-```
-The API will be accessible at `http://localhost:8000`.
-
-### Run Frontend
-Open a new terminal, navigate to the frontend directory, and start the development server:
+**4. Run Vite Frontend (Separate Terminal):**
 ```bash
 cd frontend
 npm run dev
 ```
-The UI will be accessible at `http://localhost:5173`.
+- Frontend UI: `http://localhost:5173`
+- *Note: Vite automatically proxies API calls from `http://localhost:5173/predict/*` to `http://localhost:8000/predict/*`.*
 
-### Run Ngrok (Optional for Public Access)
-To expose your local backend to the internet, install ngrok and run:
+### Option C: Single-Service Production Preview
+To preview how the application runs in production (single server serving frontend + API):
 ```bash
-ngrok http 8000
-```
-Update your frontend `.env` file with the generated ngrok URL (e.g., `VITE_API_BASE_URL=https://<your-ngrok-id>.ngrok-free.dev/predict`).
+# 1. Build frontend
+cd frontend
+npm run build
+cd ..
 
-## API Endpoints
+# 2. Run unified server
+python run.py
+```
+- Open `http://localhost:8000` to see the full application.
+
+---
+
+## ☁️ Deployment Guide (Render - Single Web Service)
+
+Deploy the entire application as a single web service on Render without ngrok.
+
+### Step-by-Step Instructions:
+
+1. **Push your repository to GitHub / GitLab.**
+2. Log into the [Render Dashboard](https://dashboard.render.com/).
+3. Click **New +** > **Web Service**.
+4. Connect your repository.
+5. Configure the service:
+   - **Name**: `neuralphish-ai`
+   - **Runtime**: `Python 3`
+   - **Region**: Any (e.g. `Oregon (US West)`)
+   - **Branch**: `main`
+   - **Build Command**:
+     ```bash
+     ./build.sh
+     ```
+     *(Alternatively: `pip install -r requirements.txt && npm --prefix frontend install && npm --prefix frontend run build`)*
+   - **Start Command**:
+     ```bash
+     uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT
+     ```
+   - **Plan**: `Free`
+6. Click **Deploy Web Service**.
+7. Once deployed, open your Render URL (e.g., `https://neuralphish-ai.onrender.com`).
+   - The React homepage opens immediately at `/`.
+   - The interactive Swagger docs are live at `/docs`.
+   - Threat predictions work seamlessly from the UI.
+
+---
+
+## 📡 API Endpoints
 
 ### 1. `POST /predict/message`
-- **Description**: Predicts if an SMS message is phishing.
-- **Body**: `{"text": "Your message here"}`
-- **Response**:
+Analyzes text or SMS messages for phishing and fraudulent patterns.
+
+- **Request Body**:
+```json
+{
+  "text": "URGENT: Your bank account has been suspended! Click here to verify: http://secure-login.com"
+}
+```
+
+- **Response (200 OK)**:
 ```json
 {
   "prediction": "Phishing",
-  "confidence": 85.5,
-  "risk_level": "High Risk 🚨",
+  "confidence": 60.0,
+  "risk_level": "Medium",
   "reason": "Suspicious keyword detected",
-  "keywords_detected": ["urgent", "verify"]
+  "keywords_detected": ["urgent", "verify", "account", "click"]
 }
 ```
 
 ### 2. `POST /predict/url`
-- **Description**: Predicts if a URL is phishing.
-- **Body**: `{"url": "http://suspicious-link.com"}`
-- **Response**:
+Analyzes URLs for structural abnormalities, keyword impersonation, and phishing signatures.
+
+- **Request Body**:
 ```json
 {
-  "prediction": "Suspicious",
-  "confidence": 65.0,
-  "risk_level": "Medium Risk ⚠️",
-  "reason": "Suspicious URL structure",
-  "domain_status": "Unknown",
-  "structural_flags": ["High hyphen count (3)"]
+  "url": "http://paypal-verification-account.com"
 }
 ```
 
-## Screenshots
-> *(Add screenshots of your application here)*
+- **Response (200 OK)**:
+```json
+{
+  "prediction": "Phishing",
+  "confidence": 100.0,
+  "risk_level": "High",
+  "reason": "Phishing keywords in URL",
+  "domain_status": "Unknown",
+  "structural_flags": [
+    "Suspicious words in URL",
+    "High hyphen count (3)",
+    "Missing HTTPS protocol"
+  ]
+}
+```
 
-- **Home Dashboard:**
-  ![Home Dashboard Placeholder](#)
-- **URL Detection Result:**
-  ![URL Result Placeholder](#)
-- **SMS Detection Result:**
-  ![SMS Result Placeholder](#)
+### 3. `GET /api/health`
+Health check for uptime monitors.
+```json
+{
+  "status": "healthy",
+  "service": "NeuralPhish AI",
+  "frontend_built": true
+}
+```
 
-## Future Scope
-- **Browser Extension**: Develop a Chrome/Firefox extension for real-time URL scanning.
-- **Deep Learning Models**: Integrate LSTM or BERT models for improved NLP context understanding.
-- **User Authentication**: Allow users to save their scan history securely.
-- **API Rate Limiting**: Implement advanced security measures for the backend API.
+### 4. `GET /docs`
+FastAPI interactive Swagger UI for testing API endpoints.
 
-## Contributors
-- **[Your Name/Team Name]** - *Initial Work & Development*
+---
+
+## 🔒 Security & Best Practices
+
+- Model binaries are bundled for fast zero-retraining inference.
+- Heavy training CSV datasets (`url_dataset.csv` ~56MB) are excluded via `.gitignore` to keep repository size lean and deploys fast.
+- Sensitive environment variables, local virtualenvs, and ngrok binaries are strictly ignored.

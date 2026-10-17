@@ -1,16 +1,20 @@
 import os
+from pathlib import Path
+import logging
 import joblib
 import pandas as pd
 from src.preprocess import clean_text, extract_url_features
 
-def get_models_dir():
-    # Attempt to locate models relative to this file
-    base_dir = os.path.join(os.path.dirname(__file__), '..')
-    models_dir = os.path.join(base_dir, 'models')
+logger = logging.getLogger("neuralphish")
+
+def get_models_dir() -> Path:
+    # Resolve models directory reliably relative to this file
+    base_dir = Path(__file__).resolve().parent.parent
+    models_dir = base_dir / 'models'
     
-    if not os.path.exists(models_dir):
-        # Fallback if run from different dir
-        models_dir = os.path.join(os.getcwd(), 'models')
+    if not models_dir.exists():
+        # Fallback if run from a different working directory
+        models_dir = Path.cwd() / 'models'
         
     return models_dir
 
@@ -23,18 +27,36 @@ def load_sms_model():
     global _sms_model, _vectorizer
     if _sms_model is None or _vectorizer is None:
         models_dir = get_models_dir()
-        sms_model_path = os.path.join(models_dir, 'sms_model.pkl')
-        vectorizer_path = os.path.join(models_dir, 'vectorizer.pkl')
-        _sms_model = joblib.load(sms_model_path)
-        _vectorizer = joblib.load(vectorizer_path)
+        sms_model_path = models_dir / 'sms_model.pkl'
+        vectorizer_path = models_dir / 'vectorizer.pkl'
+
+        if not sms_model_path.exists():
+            raise FileNotFoundError(f"SMS model file not found at: {sms_model_path}")
+        if not vectorizer_path.exists():
+            raise FileNotFoundError(f"Vectorizer file not found at: {vectorizer_path}")
+
+        logger.info(f"Loading SMS model from {sms_model_path}")
+        _sms_model = joblib.load(str(sms_model_path))
+        _vectorizer = joblib.load(str(vectorizer_path))
+
+        # Compatibility safeguard across scikit-learn versions (1.7.x vs 1.8.x)
+        if not hasattr(_sms_model, 'multi_class'):
+            _sms_model.multi_class = 'auto'
+
     return _sms_model, _vectorizer
 
 def load_url_model():
     global _url_model
     if _url_model is None:
         models_dir = get_models_dir()
-        url_model_path = os.path.join(models_dir, 'url_model.pkl')
-        _url_model = joblib.load(url_model_path)
+        url_model_path = models_dir / 'url_model.pkl'
+
+        if not url_model_path.exists():
+            raise FileNotFoundError(f"URL model file not found at: {url_model_path}")
+
+        logger.info(f"Loading URL model from {url_model_path}")
+        _url_model = joblib.load(str(url_model_path))
+
     return _url_model
 
 def predict_message(text):

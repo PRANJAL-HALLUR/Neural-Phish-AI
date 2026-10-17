@@ -5,7 +5,15 @@ import ResultCard from './ResultCard';
 import Spinner from './Spinner';
 import './DetectionPanel.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/predict';
+// Base API resolution:
+// In production single-service or Vite dev (with proxy), defaults to relative '/predict'
+// If an external URL is explicitly supplied in VITE_API_BASE_URL, normalize and use it.
+const RAW_API_BASE = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+const API_PREDICT_BASE = RAW_API_BASE.endsWith('/predict')
+  ? RAW_API_BASE
+  : RAW_API_BASE
+    ? `${RAW_API_BASE}/predict`
+    : '/predict';
 
 const DetectionPanel = ({ onResult }) => {
   const [activeTab, setActiveTab] = useState('message');
@@ -43,7 +51,7 @@ const DetectionPanel = ({ onResult }) => {
     setResult(null);
 
     try {
-      const endpoint = activeTab === 'url' ? `${API_BASE}/url` : `${API_BASE}/message`;
+      const endpoint = activeTab === 'url' ? `${API_PREDICT_BASE}/url` : `${API_PREDICT_BASE}/message`;
       const payload = activeTab === 'url' ? { url: currentInput } : { text: currentInput };
 
       const response = await fetch(endpoint, {
